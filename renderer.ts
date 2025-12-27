@@ -28,28 +28,54 @@
 
 import './index.css';
 
-console.log(
-  '👋 This message is being logged by "renderer.ts", included via Vite',
-);
+declare global {
+  interface Window {
+    electronAPI: {
+      setIgnoreMouseEvents: (ignore: boolean, options?: { forward: boolean }) => void;
+    };
+  }
+}
 
-window.addEventListener('mousemove', (event) => {
-  const pupils = document.querySelectorAll<HTMLElement>('.pupil');
-  
-  pupils.forEach((pupil) => {
-    const rect = pupil.getBoundingClientRect();
-    const eyeX = rect.left + rect.width / 2;
-    const eyeY = rect.top + rect.height / 2;
-    
-    // Calculate angle between mouse and eye center
-    const angle = Math.atan2(event.clientY - eyeY, event.clientX - eyeX);
-    
-    // Move pupil 4px in that direction
-    const distance = 4;
-    const x = Math.cos(angle) * distance;
-    const y = Math.sin(angle) * distance;
-    
-    pupil.style.transform = `translate(${x}px, ${y}px)`;
+const clickBox = document.querySelector('.click-box') as HTMLElement;
+const ghostBody = document.querySelector('.ghost-body') as HTMLElement;
+const ghostContainer = document.getElementById('character');
+
+// Handle Clickability
+if (clickBox) {
+  clickBox.addEventListener('mouseenter', () => window.electronAPI.setIgnoreMouseEvents(false));
+  clickBox.addEventListener('mouseleave', () => window.electronAPI.setIgnoreMouseEvents(true, { forward: true }));
+
+  clickBox.addEventListener('click', () => {
+    if (ghostBody) {
+      ghostBody.style.transition = 'transform 0.1s ease-out';
+      ghostBody.style.transform = 'scale(1.2) translateY(-10px)';
+      setTimeout(() => ghostBody.style.transform = 'scale(1) translateY(0)', 100);
+    }
   });
-});
+}
 
+// Animation State
+let posX = 0;
+let direction = 1;
+let time = 0;
 
+function animate() {
+  if (!ghostContainer) return requestAnimationFrame(animate);
+
+  const safeBound = window.innerWidth - ghostContainer.offsetWidth;
+
+  // Move
+  posX += 0.5 * direction; 
+  if (posX >= safeBound || posX <= 0) direction *= -1;
+
+  // Bob
+  time += 0.03;
+  const bobY = Math.sin(time) * 10;
+  const flip = direction === 1 ? -1 : 1;
+
+  ghostContainer.style.transform = `translate3d(${posX}px, ${100 + bobY}px, 0) scaleX(${flip})`;
+  
+  requestAnimationFrame(animate);
+}
+
+animate();
