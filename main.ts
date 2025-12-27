@@ -1,4 +1,4 @@
-import { app, BrowserWindow, screen } from 'electron';
+import { app, BrowserWindow, screen, ipcMain } from 'electron';
 import path from 'node:path';
 import started from 'electron-squirrel-startup';
 
@@ -8,13 +8,16 @@ if (started) {
 }
 
 const createWindow = () => {
-  // Create the browser window.
   const primaryDisplay = screen.getPrimaryDisplay();
-  const { width, height } = primaryDisplay.bounds; // ← Use bounds, not workAreaSize
+  const { width, height } = primaryDisplay.bounds; 
   
-  const windowWidth = 400;
-  const windowHeight = 300;
+  // Exactly half the screen width
+  const windowWidth = Math.floor(width / 2);
+  
+  // Exactly one fourth (1/4) of the screen height
+  const windowHeight = Math.floor(height / 4);
 
+  // This will position it in the bottom-right corner
   const x = width - windowWidth;
   const y = height - windowHeight;
 
@@ -24,11 +27,38 @@ const createWindow = () => {
     x: x,
     y: y,
     frame: false,
+    transparent: true, // Must be true for click-through to work well
     alwaysOnTop: true,
+    hasShadow: false, // Changed from mainWindow.shadow to a creation property for better stability
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
+      nodeIntegration: true, // Ensure these match your project setup
     },
   });
+  
+  // THE CLICK-THROUGH LOGIC
+  // This tells Electron to ignore mouse events but send them to the renderer
+  mainWindow.setIgnoreMouseEvents(true, { forward: true });
+  
+  // Listen for a message from the renderer to "turn on/off" clicks
+  ipcMain.on('set-ignore-mouse-events', (event, ignore, options) => {
+    const win = BrowserWindow.fromWebContents(event.sender);
+    win?.setIgnoreMouseEvents(ignore, options);
+  });
+
+  setInterval(() => {
+    if (mainWindow && !mainWindow.isDestroyed()) {
+      const { x, y } = screen.getCursorScreenPoint();
+      const [winX, winY] = mainWindow.getPosition();
+      
+      // We send the RELATIVE position so the eyes know where the mouse is 
+      // compared to the window
+      mainWindow.webContents.send('global-mouse-move', {
+        relX: x - winX,
+        relY: y - winY
+      });
+    }
+  }, 30);
 
   // and load the index.html of the app.
   if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
@@ -39,8 +69,7 @@ const createWindow = () => {
     );
   }
 
-  // Open the DevTools.
-  mainWindow.webContents.openDevTools();
+  // Open the DevTools. (Line removed to prevent unclickable side-panel)
 };
 
 // This method will be called when Electron has finished
@@ -67,4 +96,3 @@ app.on('activate', () => {
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and import them here.
-
