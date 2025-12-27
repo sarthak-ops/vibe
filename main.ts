@@ -9,12 +9,22 @@ if (started) {
 
 const createWindow = () => {
   // Create the browser window.
+  const primaryDisplay = screen.getPrimaryDisplay();
+  const { width, height } = primaryDisplay.bounds; // ← Use bounds, not workAreaSize
+  
+  const windowWidth = 400;
+  const windowHeight = 300;
+
+  const x = width - windowWidth;
+  const y = height - windowHeight;
+
   const mainWindow = new BrowserWindow({
-    width: 800,
-    height: 600,
-    x: screen.getPrimaryDisplay().workAreaSize.width - 800,
-    y: screen.getPrimaryDisplay().workAreaSize.height - 600,
+    width: windowWidth,
+    height: windowHeight,
+    x: x,
+    y: y,
     frame: false,
+    alwaysOnTop: true,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
     },
@@ -57,3 +67,4 @@ app.on('activate', () => {
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and import them here.
+
