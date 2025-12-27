@@ -9,69 +9,104 @@ body {
 
 #character {
   position: absolute;
-  bottom: 50px;
+  /* Reduced size */
+  width: 60px; 
+  height: 80px;
+  
+  /* Initial position in the center of the window */
+  bottom: 50%;
   left: 50%;
-  transform: translateX(-50%);
-  width: 120px;
-  height: 150px;
+  
   cursor: pointer;
   -webkit-app-region: no-drag;
-  animation: float 4s ease-in-out infinite;
+  
+  /* We'll use a more complex animation for bobbing + swaying */
+  animation: floatPath 6s ease-in-out infinite;
 }
 
 .ghost-body {
-  position: relative;
-  width: 100px;
-  height: 120px;
+  width: 60px;
+  height: 75px;
   background: white;
-  border-radius: 50px 50px 0 0; /* Rounded top */
+  border-radius: 30px 30px 0 0;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+  box-shadow: 0 5px 15px rgba(0,0,0,0.15);
 }
 
 .eye-row {
   display: flex;
-  margin-top: -10px;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  margin-top: 0px; /* Adjust based on your ghost's head height */
 }
 
 .eye {
-  width: 18px;
-  height: 22px;
-  background: #333;
+  width: 12px;
+  height: 16px;
+  background: #333; /* The "socket" */
   border-radius: 50%;
-  margin: 0 8px;
-  position: relative;
-  overflow: hidden;
+  margin: 0 6px;
+  
+  /* CRITICAL: This keeps the pupil inside the eye */
+  position: relative; 
+  overflow: hidden; 
 }
 
 .pupil {
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
   background: white;
   border-radius: 50%;
+  
+  /* Position it in the center initially */
   position: absolute;
-  top: 4px;
-  left: 4px;
+  top: 50%;
+  left: 50%;
+  margin-top: -2.5px;
+  margin-left: -2.5px;
+  
+  /* Smooth out the jitter when moving */
+  transition: transform 0.1s linear;
 }
 
 .ghost-bottom {
   position: absolute;
-  bottom: -15px;
+  bottom: -10px;
   display: flex;
   width: 100%;
 }
 
 .wave {
   width: 33.3%;
-  height: 20px;
+  height: 12px;
   background: white;
   border-radius: 0 0 50% 50%;
 }
 
-@keyframes float {
-  0%, 100% { transform: translateX(-50%) translateY(0px); }
-  50% { transform: translateX(-50%) translateY(-20px); }
+@keyframes floatPath {
+  0%, 100% {
+    transform: translate(-50%, 0px);
+  }
+  25% {
+    transform: translate(-20%, -15px); /* Sway right, bob up */
+  }
+  50% {
+    transform: translate(-50%, -30px); /* Back to center, bob higher */
+  }
+  75% {
+    transform: translate(-80%, -15px); /* Sway left, bob down */
+  }
+}
+
+@keyframes blink {
+  0%, 90%, 100% { transform: scaleY(1); }
+  95% { transform: scaleY(0.1); }
+}
+
+.eye {
+  animation: blink 5s infinite;
 }
