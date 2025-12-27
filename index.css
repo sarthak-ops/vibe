@@ -1,112 +1,88 @@
-body {
-  font-family:
-    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial,
-    sans-serif;
-  margin: auto;
-  max-width: 38rem;
-  padding: 2rem;
+/* 1. Global Reset & Stage Setup */
+body, html {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden; 
+  background: transparent;
+  font-family: sans-serif;
 }
 
+/* 2. Ghost Container & Hitbox */
 #character {
   position: absolute;
-  /* Reduced size */
-  width: 60px; 
-  height: 80px;
-  
-  /* Initial position in the center of the window */
-  bottom: 50%;
-  left: 50%;
-  
-  cursor: pointer;
+  width: 110px; /* body width + padding */
+  height: 140px;
+  pointer-events: none;
+  will-change: transform;
   -webkit-app-region: no-drag;
-  
-  /* We'll use a more complex animation for bobbing + swaying */
-  animation: floatPath 6s ease-in-out infinite;
 }
 
+.click-box {
+  padding: 10px;
+  pointer-events: auto;
+  display: inline-block;
+  cursor: pointer;
+}
+
+/* 3. Ghost Visuals */
 .ghost-body {
-  width: 60px;
-  height: 75px;
-  background: white;
-  border-radius: 30px 30px 0 0;
+  width: 90px;
+  height: 110px;
+  background: rgba(220, 220, 220, 0.3);
+  backdrop-filter: blur(2px);
+  border-radius: 45px 45px 0 0;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  border-bottom: none;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+  
+  /* Jagged Bottom Mask */
+  -webkit-mask-image: linear-gradient(to bottom, black 85%, transparent 85%),
+                      linear-gradient(45deg, transparent 75%, black 75%),
+                      linear-gradient(-45deg, transparent 75%, black 75%);
+  -webkit-mask-size: 100% 100%, 20px 20px, 20px 20px;
+  -webkit-mask-repeat: no-repeat, repeat-x, repeat-x;
+  -webkit-mask-position: top, bottom, bottom;
 }
 
+/* 4. Eyes & Pupils */
 .eye-row {
   display: flex;
   justify-content: center;
-  align-items: center;
-  width: 100%;
-  margin-top: 0px; /* Adjust based on your ghost's head height */
 }
 
 .eye {
-  width: 12px;
-  height: 16px;
-  background: #333; /* The "socket" */
+  width: 18px;
+  height: 24px;
+  background: rgba(50, 50, 50, 0.4); 
   border-radius: 50%;
-  margin: 0 6px;
-  
-  /* CRITICAL: This keeps the pupil inside the eye */
-  position: relative; 
-  overflow: hidden; 
+  margin: 0 8px;
+  position: relative;
+  animation: blink 5s infinite;
 }
 
 .pupil {
-  width: 5px;
-  height: 5px;
-  background: white;
+  width: 8px;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.5);
   border-radius: 50%;
-  
-  /* Position it in the center initially */
   position: absolute;
   top: 50%;
   left: 50%;
-  margin-top: -2.5px;
-  margin-left: -2.5px;
-  
-  /* Smooth out the jitter when moving */
-  transition: transform 0.1s linear;
+  transform: translate(-50%, -50%);
 }
 
-.ghost-bottom {
-  position: absolute;
-  bottom: -10px;
-  display: flex;
-  width: 100%;
-}
-
-.wave {
-  width: 33.3%;
-  height: 12px;
-  background: white;
-  border-radius: 0 0 50% 50%;
-}
-
-@keyframes floatPath {
-  0%, 100% {
-    transform: translate(-50%, 0px);
-  }
-  25% {
-    transform: translate(-20%, -15px); /* Sway right, bob up */
-  }
-  50% {
-    transform: translate(-50%, -30px); /* Back to center, bob higher */
-  }
-  75% {
-    transform: translate(-80%, -15px); /* Sway left, bob down */
-  }
-}
-
+/* 5. Animations & Interaction Blockers */
 @keyframes blink {
   0%, 90%, 100% { transform: scaleY(1); }
   95% { transform: scaleY(0.1); }
 }
 
-.eye {
-  animation: blink 5s infinite;
+/* Children shouldn't interfere with mouse events */
+.eye, .pupil, .eye-row {
+  pointer-events: none; 
 }
