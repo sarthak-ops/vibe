@@ -4,5 +4,8 @@ import { contextBridge, ipcRenderer } from 'electron';
 
 contextBridge.exposeInMainWorld('electronAPI', {
   setIgnoreMouseEvents: (ignore: boolean, options?: { forward: boolean }) => 
-    ipcRenderer.send('set-ignore-mouse-events', ignore, options)
+    ipcRenderer.send('set-ignore-mouse-events', ignore, options),
+    
+  askAI: (prompt: string) => 
+    ipcRenderer.invoke('ask-ai', prompt)
 });
