@@ -1,2 +1,2 @@
 # vibe
-companion
+need an api through openrouter and save as .env file
