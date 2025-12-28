@@ -35,7 +35,7 @@ let isChatOpen = false;
 let posX = 0;
 let direction = 1;
 let time = 0;
-let baseY = 250; // This is your new starting height
+let baseY = 200; // This is your new starting height
 
 declare global {
   interface Window {
@@ -45,6 +45,15 @@ declare global {
     };
   }
 }
+
+const reminders = [
+  "Don't forget to drink some water! 💧",
+  "Time to stretch your back. 🦴",
+  "Rest your eyes for a minute. 👀",
+  "You're doing a great job! ✨",
+  "Take a deep breath. 🌬️"
+];
+const reminderInterval = 10000;
 
 // --- 2. ELEMENT SELECTORS ---
 const clickBox = document.querySelector('.click-box') as HTMLElement;
@@ -163,29 +172,40 @@ function animate() {
   const bobY = Math.sin(time) * 10;
   const flip = direction === 1 ? -1 : 1;
 
-  // Apply positions (Translate3d is smoother/hardware accelerated)
-  const baseY = window.innerHeight - 180; 
+  // FIX: Use the global 'baseY' variable so it doesn't reset to 0
   ghostContainer.style.transform = `translate3d(${posX}px, ${baseY + bobY}px, 0) scaleX(${flip})`;
 
-  if (bubble) {
-    // If the container is scaled -1, scale the bubble -1 to cancel it out ( -1 * -1 = 1 )
+  if (bubble && !bubble.classList.contains('hidden')) {
+    // Keep the bubble from flipping with the ghost
     bubble.style.transform = `translateX(-50%) scaleX(${flip})`;
   }
 
   requestAnimationFrame(animate);
 }
 
-ghostContainer.addEventListener('click', () => {
-  // Move him down by 50px every time he is clicked
-  baseY += 50; 
 
-  // Optional: Reset him if he goes too low
-  if (baseY > window.innerHeight - 100) {
-    baseY = 100; 
-  }
-  
-  console.log("New vertical axis:", baseY);
-});
+function sendGhostReminder() {
+  if (isChatOpen) return;
+
+  const randomMessage = reminders[Math.floor(Math.random() * reminders.length)];
+  bubbleContent.innerText = randomMessage;
+
+  // Show the text, hide the input
+  ghostInput.classList.add('hidden');
+  bubbleContent.classList.remove('hidden');
+  bubble.classList.remove('hidden');
+
+  // TRIGGER THE JUMP WITHOUT BREAKING TRANSFORM
+  // Use a CSS class for the jump instead of manual style overrides
+  ghostBody.classList.add('jump-anim');
+  setTimeout(() => ghostBody.classList.remove('jump-anim'), 400);
+
+  setTimeout(() => {
+    if (!isChatOpen) bubble.classList.add('hidden');
+  }, 7000);
+}
+
+setInterval(sendGhostReminder, reminderInterval);
 
 // Start everything
 animate();
