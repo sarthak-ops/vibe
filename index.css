@@ -18,26 +18,30 @@ body {
 }
 
 #speech-bubble {
-  /* Translucent dark gray */
   background: rgba(40, 40, 40, 0.75); 
-  
-  /* The "Glass" effect - blurs whatever is behind the window */
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
-  
-  /* White text for high contrast */
   color: white; 
   
+  /* Absolute positioning relative to #character */
+  position: absolute;
+  bottom: 100%; 
+  left: 50%;
+  margin-bottom: 20px; /* Reduced slightly to look more natural */
+  transform: translateX(-50%);
+
+  /* Styling fixes for 'max-content' */
+  padding: 12px 16px;
   border-radius: 12px;
-  padding: 12px;
-  width: 260px;
+  border: 1px solid rgba(255, 255, 255, 0.1); /* Subtle edge light */
+  text-align: center;
   
-  /* Subtle border to make it pop against dark backgrounds */
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  width: max-content;
+  max-width: 220px;
+  pointer-events: auto;
   
-  display: flex;
-  flex-direction: column;
+  /* Prevent the text from looking blurry on some screens */
+  backface-visibility: hidden;
 }
 
 #bubble-content {
@@ -172,6 +176,16 @@ body {
 @keyframes blink {
   0%, 90%, 100% { transform: scaleY(1); }
   95% { transform: scaleY(0.1); }
+}
+
+@keyframes pop {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
+
+.ghost-alert {
+  animation: pop 0.3s ease-out;
 }
 
 /* Children shouldn't interfere with mouse events */
