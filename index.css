@@ -9,6 +9,98 @@ body, html {
   font-family: sans-serif;
 }
 
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  /* This prevents the "vibration" or blur on transparent layers */
+  backface-visibility: hidden;
+  transform: translateZ(0);
+}
+
+#speech-bubble {
+  /* Translucent dark gray */
+  background: rgba(40, 40, 40, 0.75); 
+  
+  /* The "Glass" effect - blurs whatever is behind the window */
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  
+  /* White text for high contrast */
+  color: white; 
+  
+  border-radius: 12px;
+  padding: 12px;
+  width: 260px;
+  
+  /* Subtle border to make it pop against dark backgrounds */
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  
+  display: flex;
+  flex-direction: column;
+}
+
+#bubble-content {
+  color: #f0f0f0; /* Slightly off-white for better reading */
+  font-size: 13px;
+  line-height: 1.5;
+  margin-bottom: 8px;
+}
+
+#speech-bubble.hidden {
+  opacity: 0;
+  transform: translateX(-50%) translateY(10px) scale(0.8);
+  pointer-events: none;
+}
+
+#speech-bubble.visible {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* Triangle pointer for the bubble */
+#speech-bubble::after {
+  content: "";
+  position: absolute;
+  
+  /* This needs to be the same height/width as your current triangle */
+  bottom: -10px; 
+  left: 20px;
+  
+  border-left: 10px solid transparent;
+  border-right: 10px solid transparent;
+  
+  /* CHANGE THIS LINE: Use the same color as your bubble */
+  border-top: 10px solid rgba(40, 40, 40, 0.75); 
+  
+  /* Optional: Add the same blur if you want, but usually solid looks better for the tip */
+  filter: blur(0.5px); 
+}
+
+#ghost-input {
+  background: transparent;
+  border: none;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding-top: 8px;
+  outline: none;
+  font-size: 13px;
+  /* Make the typing text white too */
+  color: white; 
+}
+
+
+#ghost-input::placeholder {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+/* Ensure the input is hidden when not in use, or keep it visible 
+   if you want the user to always see the chat option */
+#ghost-input.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
 /* 2. Ghost Container & Hitbox */
 #character {
   position: absolute;
@@ -85,4 +177,10 @@ body, html {
 /* Children shouldn't interfere with mouse events */
 .eye, .pupil, .eye-row {
   pointer-events: none; 
+}
+
+.hidden {
+  display: none !important;
+  opacity: 0;
+  pointer-events: none; /* Prevents clicking a ghost bubble */
 }
